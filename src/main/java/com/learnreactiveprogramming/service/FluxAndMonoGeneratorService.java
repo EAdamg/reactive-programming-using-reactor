@@ -19,6 +19,10 @@ public class FluxAndMonoGeneratorService {
                 .map(String::toUpperCase)
                 .filter(s -> s.length() > stringLength)
                 .map(s -> s.length() + " - " + s)
+                .doOnNext(name -> System.out.println("Name is : " + name))
+                .doOnSubscribe(s -> System.out.println("Subscription is: " + s))
+                .doOnComplete(() -> System.out.println("Inside the complete callback"))
+                .doFinally(signalType -> System.out.println("Inside doFinally: " + signalType))
                 .log();
     }
 
