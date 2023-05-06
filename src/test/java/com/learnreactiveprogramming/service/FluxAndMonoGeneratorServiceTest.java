@@ -134,6 +134,32 @@ public class FluxAndMonoGeneratorServiceTest {
     }
 
     @Test
+    void exploreConcat() {
+        var concatFlux = fluxAndMonoGeneratorService.exploreConcat();
+
+        StepVerifier.create(concatFlux)
+                .expectNextCount(6)
+                .verifyComplete();
+
+        StepVerifier.create(concatFlux)
+                .expectNext("A", "B", "C", "D", "E", "F")
+                .expectComplete();
+    }
+
+    @Test
+    void exploreConcatWith() {
+        var concatFlux = fluxAndMonoGeneratorService.exploreConcatWith();
+
+        StepVerifier.create(concatFlux)
+                .expectNextCount(2)
+                .verifyComplete();
+
+        StepVerifier.create(concatFlux)
+                .expectNext("A", "B")
+                .expectComplete();
+    }
+
+    @Test
     void namesMono() {
         var namesMono = fluxAndMonoGeneratorService.namesMono();
 
