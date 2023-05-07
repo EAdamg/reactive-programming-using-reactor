@@ -1,5 +1,6 @@
 package com.learnreactiveprogramming.service;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
+@Slf4j
 public class FluxAndMonoGeneratorService {
 
     public Flux<String> namesFlux() {
@@ -110,6 +112,30 @@ public class FluxAndMonoGeneratorService {
         return Mono.just("alex")
                 .map(String::toUpperCase)
                 .flatMap(this::splitStringMono);
+    }
+
+    public Flux<String> exceptionFlux() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception Occurred")))
+                .concatWith(Flux.just("D"));
+    }
+
+    public Flux<String> exploreOnErrorReturn() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new IllegalStateException("Exception Occurred")))
+                .onErrorReturn("D");
+    }
+
+    public Flux<String> exploreOnErrorResume(Exception e) {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(e))
+                .onErrorResume(ex -> {
+                    log.error("Exception is ", ex);
+                    if (ex instanceof IllegalStateException) {
+                        return Flux.just("E", "F", "G");
+                    }
+                    return Flux.error(ex);
+                });
     }
 
     private Mono<List<String>> splitStringMono(String s) {

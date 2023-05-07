@@ -2,15 +2,18 @@ package com.learnreactiveprogramming.service;
 
 import com.learnreactiveprogramming.domain.Movie;
 import com.learnreactiveprogramming.domain.Review;
+import com.learnreactiveprogramming.exception.MovieException;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@Slf4j
 public class MovieReactiveService {
 
-    private MovieInfoService movieInfoService;
-    private ReviewService reviewService;
+    private final MovieInfoService movieInfoService;
+    private final ReviewService reviewService;
 
     public MovieReactiveService(MovieInfoService movieInfoService, ReviewService reviewService) {
         this.movieInfoService = movieInfoService;
@@ -25,6 +28,10 @@ public class MovieReactiveService {
                             .collectList();
                     return reviewsMono
                             .map(reviewsList -> new Movie(movieInfo, reviewsList));
+                })
+                .onErrorMap(ex -> {
+                    log.error("Exception is: " + ex);
+                    throw new MovieException(ex.getMessage());
                 });
     }
 

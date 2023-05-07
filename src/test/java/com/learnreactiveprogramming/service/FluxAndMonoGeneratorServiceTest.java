@@ -202,4 +202,40 @@ public class FluxAndMonoGeneratorServiceTest {
     }
 
 
+    @Test
+    void exceptionFlux() {
+        var exceptionFlux = fluxAndMonoGeneratorService.exceptionFlux();
+
+        StepVerifier.create(exceptionFlux)
+                .expectNext("A", "B", "C")
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    void exploreOnErrorReturn() {
+        var exceptionFlux = fluxAndMonoGeneratorService.exploreOnErrorReturn();
+
+        StepVerifier.create(exceptionFlux)
+                .expectNext("A", "B", "C", "D")
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreOnErrorResume() {
+        var exceptionFlux1 = fluxAndMonoGeneratorService
+                .exploreOnErrorResume(new IllegalStateException("Not a valid state"));
+
+        var exceptionFlux2 = fluxAndMonoGeneratorService
+                .exploreOnErrorResume(new ArrayIndexOutOfBoundsException("Array index out of bounds"));
+
+        StepVerifier.create(exceptionFlux1)
+                .expectNext("A", "B", "C", "E", "F", "G")
+                .verifyComplete();
+
+        StepVerifier.create(exceptionFlux2)
+                .expectNext("A", "B", "C")
+                .expectError(ArrayIndexOutOfBoundsException.class)
+                .verify();
+    }
 }
