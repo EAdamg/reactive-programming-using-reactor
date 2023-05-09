@@ -253,4 +253,31 @@ public class FluxAndMonoGeneratorServiceTest {
                 .expectError(ArrayIndexOutOfBoundsException.class)
                 .verify();
     }
+
+    @Test
+    void exploreGenerate() {
+        var flux = fluxAndMonoGeneratorService.exploreGenerate().log();
+
+        StepVerifier.create(flux)
+                .expectNextCount(10)
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreCreate() {
+        var flux = fluxAndMonoGeneratorService.exploreCreate().log();
+
+        StepVerifier.create(flux)
+                .expectNextCount(9)
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreHandle() {
+        var flux = fluxAndMonoGeneratorService.exploreHandle().log();
+
+        StepVerifier.create(flux)
+                .expectNext("ALEX", "CHLOE")
+                .verifyComplete();
+    }
 }

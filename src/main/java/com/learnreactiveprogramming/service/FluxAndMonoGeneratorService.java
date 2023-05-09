@@ -2,12 +2,16 @@ package com.learnreactiveprogramming.service;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+
+import static com.learnreactiveprogramming.util.CommonUtil.delay;
 
 @Slf4j
 public class FluxAndMonoGeneratorService {
@@ -90,6 +94,54 @@ public class FluxAndMonoGeneratorService {
         var bMono = Flux.just("B");
 
         return aMono.concatWith(bMono);
+    }
+
+    public Flux<Integer> exploreGenerate() {
+        return Flux.generate(() -> 1, (state, sink) -> {
+            sink.next(state * 2);
+            if (state == 10) {
+                sink.complete();
+            }
+            return state + 1;
+        });
+    }
+
+    public static List<String> names() {
+        delay(1000);
+        return List.of("alex", "ben", "chloe");
+    }
+
+    public Flux<String> exploreCreate() {
+        return Flux.create(sink -> {
+            //names().forEach(sink::next);
+            CompletableFuture
+                    .supplyAsync(FluxAndMonoGeneratorService::names)
+                            .thenAccept(names -> {
+                                names.forEach(name -> {
+                                    sink.next(name);
+                                    sink.next(name);
+                                });
+                            })
+                                    .thenRun(() -> sendEvents((sink)));
+        });
+    }
+
+    public void sendEvents(FluxSink<String> sink) {
+        CompletableFuture
+                .supplyAsync(FluxAndMonoGeneratorService::names)
+                .thenAccept(names -> {
+                    names.forEach(sink::next);
+                })
+                .thenRun(sink::complete);
+    }
+
+    public Flux<String> exploreHandle() {
+        return Flux.fromIterable(List.of("alex", "ben", "chloe"))
+                .handle((name, sink) -> {
+                    if (name.length() > 3) {
+                        sink.next(name.toUpperCase());
+                    }
+                });
     }
 
     public Flux<String> splitString(String name) {
