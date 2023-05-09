@@ -34,6 +34,26 @@ class MovieReactiveServiceTest {
     }
 
     @Test
+    void getAllMoviesRestClient() {
+        var moviesFLux = movieReactiveService.getAllMoviesRestClient();
+
+        StepVerifier.create(moviesFLux)
+                .assertNext(movie -> {
+                    assertEquals(movie.getMovieInfo().getName(), "Batman Begins");
+                    assertEquals(movie.getReviewList().size(), 2);
+                })
+                .assertNext(movie -> {
+                    assertEquals(movie.getMovieInfo().getName(), "The Dark Knight");
+                    assertEquals(movie.getReviewList().size(), 2);
+                })
+                .assertNext(movie -> {
+                    assertEquals(movie.getMovieInfo().getName(), "Dark Knight Rises");
+                    assertEquals(movie.getReviewList().size(), 2);
+                })
+                .expectComplete();
+    }
+
+    @Test
     void getMovieById() {
         long movieId = 100L;
 
@@ -61,4 +81,5 @@ class MovieReactiveServiceTest {
                 })
                 .expectComplete();
     }
+
 }

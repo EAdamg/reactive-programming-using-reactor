@@ -1,11 +1,11 @@
 package com.learnreactiveprogramming.exception;
 
 public class ReactorException extends Throwable {
-    private Throwable excpetion;
-    private String message;
+    private final Throwable exception;
+    private final String message;
 
     public ReactorException(Throwable exception, String message) {
-        this.excpetion = exception;
+        this.exception = exception;
         this.message = message;
 
     }
