@@ -2,7 +2,9 @@ package com.learnreactiveprogramming.service;
 
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
+import reactor.test.scheduler.VirtualTimeScheduler;
 
+import java.time.Duration;
 import java.util.List;
 
 public class FluxAndMonoGeneratorServiceTest {
@@ -81,6 +83,19 @@ public class FluxAndMonoGeneratorServiceTest {
 
         // Won't fail, since concatMap preserves order
         StepVerifier.create(namesFluxMap)
+                .expectNext("A", "L", "E", "X", "C", "H", "L", "O", "E")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesFluxFlatConcatMapVirtualTimer() {
+        VirtualTimeScheduler.getOrSet();
+        int stringLength = 3;
+        var namesFluxMap = fluxAndMonoGeneratorService.namesFluxFlatConcatMap(stringLength);
+
+        // Won't fail, since concatMap preserves order
+        StepVerifier.withVirtualTime(() -> namesFluxMap)
+                .thenAwait(Duration.ofSeconds(10))
                 .expectNext("A", "L", "E", "X", "C", "H", "L", "O", "E")
                 .verifyComplete();
     }
